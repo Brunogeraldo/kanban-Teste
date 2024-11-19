@@ -13,7 +13,7 @@ const App = () => {
 
     useEffect(() => {
         const fetchTasks = async () => {
-            const response = await axios.get('http://localhost:8080/tasks');
+            const response = await axios.get('http://localhost:8080/tarefas'); // Atualizado para '/tarefas'
             setTasks(response.data);
         };
         fetchTasks();
@@ -21,7 +21,7 @@ const App = () => {
 
     const createTask = async (newTask) => {
         try {
-            const response = await axios.post('http://localhost:8080/tasks', newTask);
+            const response = await axios.post('http://localhost:8080/tarefas', newTask); // Atualizado para '/tarefas'
             setTasks([...tasks, response.data]);
         } catch (error) {
             console.error("Error creating task:", error);
@@ -30,7 +30,7 @@ const App = () => {
 
     const editTask = async (id, updatedTask) => {
         try {
-            await axios.put(`http://localhost:8080/tasks/${id}`, updatedTask);
+            await axios.patch(`http://localhost:8080/tarefas/${id}`, updatedTask); // Atualizado para '/tarefas'
             const updatedTasks = tasks.map(task => (task.id === id ? { ...task, ...updatedTask } : task));
             setTasks(updatedTasks);
             setTaskToEdit(null);
@@ -41,7 +41,7 @@ const App = () => {
 
     const moveTask = async (id) => {
         try {
-            await axios.put(`http://localhost:8080/tasks/${id}/move`);
+            await axios.patch(`http://localhost:8080/tarefas/${id}/status`, { status: "Em Progresso" }); // Atualizado para '/tarefas/:id/status'
             const updatedTasks = tasks.map(task => {
                 if (task.id === id) {
                     return {
@@ -59,7 +59,7 @@ const App = () => {
 
     const deleteTask = async (id) => {
         try {
-            await axios.delete(`http://localhost:8080/tasks/${id}`);
+            await axios.delete(`http://localhost:8080/tarefas/${id}`); // Atualizado para '/tarefas'
             setTasks(tasks.filter(task => task.id !== id));
         } catch (error) {
             console.error("Error deleting task:", error);
@@ -67,8 +67,8 @@ const App = () => {
     };
 
     const filteredTasks = tasks.filter(task => {
-        const matchesPriority = selectedPriority ? task.priority === selectedPriority : true;
-        const matchesDueDate = dueDate ? new Date(task.dueDate) <= new Date(dueDate) : true;
+        const matchesPriority = selectedPriority ? task.prioridade === selectedPriority : true; // Mudança de 'priority' para 'prioridade'
+        const matchesDueDate = dueDate ? new Date(task.dataLimite) <= new Date(dueDate) : true; // Mudança de 'dueDate' para 'dataLimite'
         return matchesPriority && matchesDueDate;
     });
 
@@ -96,13 +96,13 @@ const App = () => {
                     <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
                 </label>
             </div>
-
+    
             <button onClick={handleReportToggle}>
                 {showReport ? 'Ocultar Relatório' : 'Gerar Relatório'}
             </button>
-
+    
             {showReport && <TaskReport tasks={filteredTasks} />}
-
+    
             <TaskList tasks={filteredTasks} moveTask={moveTask} deleteTask={deleteTask} setTaskToEdit={setTaskToEdit} />
         </div>
     );
